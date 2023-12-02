@@ -52,6 +52,13 @@ with open('data.json', 'w') as json_file:
     json.dump(json.loads(json_data), json_file, indent=4)
 
     # Get user inputs:
+# Write in Terminal : what you're looking for
+# Entry level - write EN 
+# Middle level - MI
+# Senior level - SE
+# full time - FT
+# part time - PT
+
 # experience level you are searching for
 experience_level = str(input("Enter experience level( EN / MI/ SE): ")).lower() + '_experience_level'
 
@@ -99,8 +106,7 @@ fig_job_dist = px.bar(df['job_title'].value_counts(), x=df['job_title'].value_co
                       title='Job Title Frequencies')
 st.plotly_chart(fig_job_dist)
 
-## write this in the terminal :
-# streamlit run /home/codespace/.local/lib/pyhton3.10/site-packages/ipykernel_launcher.py
+
 
 
 
