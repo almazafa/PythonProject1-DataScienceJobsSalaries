@@ -1,4 +1,7 @@
 
+##it's better to run it in pycharm so you can insert the information in terminal and then it'll show the streamlit app it'll open a new browser
+
+
 import streamlit as st
 import pandas as pd
 import json
