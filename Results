@@ -1,0 +1,201 @@
+
+import requests 
+import streamlit as st
+import pandas as pd
+import json
+from pathlib import Path
+from io import StringIO
+import plotly.express as px
+
+### Access the data set and read the file 
+### Displays the first 5 rows of the DataFrame.
+
+
+url = 'https://raw.githubusercontent.com/almazafa/DataScience/main/Data%20Science%20Jobs%20Salaries.csv'
+df = pd.read_csv(url)
+print(df.head())
+
+
+work_year experience_level employment_type                  job_title  \
+0     2021e               EN              FT    Data Science Consultant   
+1      2020               SE              FT             Data Scientist   
+2     2021e               EX              FT       Head of Data Science   
+3     2021e               EX              FT               Head of Data   
+4     2021e               EN              FT  Machine Learning Engineer   
+
+   salary salary_currency  salary_in_usd employee_residence  remote_ratio  \
+0   54000             EUR          64369                 DE            50   
+1   60000             EUR          68428                 GR           100   
+2   85000             USD          85000                 RU             0   
+3  230000             USD         230000                 RU            50   
+4  125000             USD         125000                 US           100   
+
+  company_location company_size  
+0               DE            L  
+1               US            L  
+2               RU            M  
+3               RU            L  
+4               US            S  
+
+
+### I wanted to show other way how i can accesss the url and displays it as DataFrame using requests library
+
+# URL of the CSV file on GitHub
+url = 'https://raw.githubusercontent.com/almazafa/DataScience/main/Data%20Science%20Jobs%20Salaries.csv'
+
+# Fetch the CSV data using requests
+response = requests.get(url)
+
+# Check if the request was successful (status code 200)
+if response.status_code == 200:
+ # Load the content of the response into a pandas DataFrame
+    csv_data = StringIO(response.text)
+    df = pd.read_csv(csv_data)
+    
+# Display the first few rows of the DataFrame
+    print(df.head())
+else:
+    print('Failed to fetch data. Status code:', response.status_code)
+
+
+  work_year experience_level employment_type                  job_title  \
+0     2021e               EN              FT    Data Science Consultant   
+1      2020               SE              FT             Data Scientist   
+2     2021e               EX              FT       Head of Data Science   
+3     2021e               EX              FT               Head of Data   
+4     2021e               EN              FT  Machine Learning Engineer   
+
+   salary salary_currency  salary_in_usd employee_residence  remote_ratio  \
+0   54000             EUR          64369                 DE            50   
+1   60000             EUR          68428                 GR           100   
+2   85000             USD          85000                 RU             0   
+3  230000             USD         230000                 RU            50   
+4  125000             USD         125000                 US           100   
+
+  company_location company_size  
+0               DE            L  
+1               US            L  
+2               RU            M  
+3               RU            L  
+4               US            S  
+
+
+
+#Provide a summary of statistics for numeric columns
+df.describe()
+
+
+             salary  salary_in_usd  remote_ratio
+count  2.450000e+02     245.000000    245.000000
+mean   5.025418e+05   99868.012245     69.183673
+std    2.276230e+06   83983.326949     37.593421
+min    4.000000e+03    2876.000000      0.000000
+25%    6.000000e+04   45896.000000     50.000000
+50%    1.030000e+05   81000.000000    100.000000
+75%    1.740000e+05  130000.000000    100.000000
+max    3.040000e+07  600000.000000    100.000000
+
+
+
+#To use Json i need to convert csv to json
+# Convert DataFrame to JSON
+json_data = df.to_json(orient='records')
+
+# Writing JSON data to a file
+with open('data.json', 'w') as json_file:
+    json.dump(json.loads(json_data), json_file, indent=4)
+
+
+ # Get user inputs:
+ # experience level you are searching for 
+experience_level = str(input("Enter experience level( EN / MI/ SE): ")).lower()+'_experience_level'
+
+# employment_type you are searching for 
+employment_type = str(input("Enter employment_type: FT or PT")).lower().replace(' ','+')
+
+# job you are searching for 
+job_title = str(input("Enter keywords: Data Scientist or Data Engineer ")).lower().replace(' ','+')
+
+
+# Will display pop up message please insert what you are looking for :
+
+search_query = url + '?&q=' + job_title + '&l=' + employment_type + '&explvl=' + experience_level
+response_search = requests.get(search_query)
+
+df_searched = pd.read_csv(StringIO(response_search.text))
+
+print(f'Your search is ready: {df_searched}')
+
+
+Your search is ready:     work_year experience_level employment_type                  job_title  \
+0       2021e               EN              FT    Data Science Consultant   
+1        2020               SE              FT             Data Scientist   
+2       2021e               EX              FT       Head of Data Science   
+3       2021e               EX              FT               Head of Data   
+4       2021e               EN              FT  Machine Learning Engineer   
+..        ...              ...             ...                        ...   
+240      2020               SE              FT             Data Scientist   
+241     2021e               MI              FT   Principal Data Scientist   
+242      2020               EN              FT             Data Scientist   
+243      2020               EN              CT      Business Data Analyst   
+244     2021e               SE              FT       Data Science Manager   
+
+      salary salary_currency  salary_in_usd employee_residence  remote_ratio  \
+0      54000             EUR          64369                 DE            50   
+1      60000             EUR          68428                 GR           100   
+2      85000             USD          85000                 RU             0   
+3     230000             USD         230000                 RU            50   
+4     125000             USD         125000                 US           100   
+..       ...             ...            ...                ...           ...   
+240   412000             USD         412000                 US           100   
+241   151000             USD         151000                 US           100   
+242   105000             USD         105000                 US           100   
+243   100000             USD         100000                 US           100   
+244  7000000             INR          94917                 IN            50   
+
+    company_location company_size  
+0                 DE            L  
+1                 US            L  
+2                 RU            M  
+3                 RU            L  
+4                 US            S  
+..               ...          ...  
+240               US            L  
+241               US            L  
+242               US            S  
+243               US            L  
+244               IN            L  
+
+[245 rows x 11 columns]
+
+
+#Streamlit app 
+#name of the app - title
+
+st.title ('Data Science Job Visualiztion')
+
+# display the data set
+
+st.write("Loaded Data:")
+st.write(df)
+
+# Use Plotly charts based on the data set
+# salary chart using histogram 
+
+
+fig_salary_dist = px.histogram(df, x='salary', title='Salary Distribution')
+st.plotly_chart(fig_salary_dist)
+
+# experience_level job distribution using pie chart
+
+fig_experience_dist = px.pie(df, names = 'experience_level' , title = 'experience level job distribution')
+st.plotly_chart(fig_experience_dist)
+
+
+# job title frequencies using bar chart
+
+fig_job_dist = px.bar(df['job_title'].value_counts() , x=df['job_title'].value_counts().index, y=df['job_title'].value_counts().values, labels = {'x': 'Job job_title', 'y': 'Frequency'}, title='Job Title Frequencies')
+st.plotly_chart(fig_job_dist)
+
+
+# go to this url : http://localhost:8501
